@@ -39,7 +39,7 @@ func main() {
 		fmt.Printf("Signature: %s\n", hexutil.Encode(sig))
 
 		func() (err error) {
-			go func() {
+			defer func() {
 				if err != nil {
 					fmt.Printf("Error: %s\n", err)
 				}
