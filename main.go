@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 var reg = regexp.MustCompile(`value: '0x([0-9a-z]+)'`)
@@ -30,33 +32,41 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(string(o))
 
 		m := reg.FindSubmatch(o)
 
-		sig := m[1]
-		fmt.Printf("Signature: %s\n", sig)
+		sig := common.FromHex(string(m[1]))
+		fmt.Printf("Signature: %s\n", hexutil.Encode(sig))
 
-		// sig := common.FromHex(string(m[1]))
+		func() (err error) {
+			go func() {
+				if err != nil {
+					fmt.Printf("Error: %s\n", err)
+				}
+			}()
 
-		// if len(sig) != 65 {
-		// 	log.Printf("Invalid signature: %s", sig)
-		// }
+			sig := common.FromHex(string(m[1]))
 
-		// sig[64] -= 27
+			if len(sig) != 65 {
+				return fmt.Errorf("signature has length %d", len(sig))
+			}
 
-		// uncPubKey, err := crypto.Ecrecover(h[:], sig)
-		// if err != nil {
-		// 	log.Printf("Failed to recover: %s", err)
-		// }
+			sig[64] -= 27
 
-		// pubKey, err := crypto.UnmarshalPubkey(uncPubKey)
-		// if err != nil {
-		// 	log.Printf("Couldn't load public key: %s", err)
-		// }
+			uncPubKey, err := crypto.Ecrecover(h[:], sig)
+			if err != nil {
+				return fmt.Errorf("failed to recover: %w", err)
+			}
 
-		// addr := crypto.PubkeyToAddress(*pubKey)
+			pubKey, err := crypto.UnmarshalPubkey(uncPubKey)
+			if err != nil {
+				return fmt.Errorf("failed to unmarshal public key: %w", err)
+			}
 
-		// log.Printf("Got: %s", addr)
+			addr := crypto.PubkeyToAddress(*pubKey)
+
+			fmt.Printf("Recovered: %s\n", addr)
+			return nil
+		}()
 	}
 }
