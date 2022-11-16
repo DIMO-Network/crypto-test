@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-var reg = regexp.MustCompile(`value: '0x([0-9a-z]+)'`)
+var reg = regexp.MustCompile(`^.+(0x[0-9a-z]+)`)
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -27,13 +27,13 @@ func main() {
 		fmt.Printf("Hash: %s\n", h)
 
 		cmd := exec.Command("sudo", "/home/pi/edge-identity/edge-identity", "--lib", "/usr/lib/softhsm/libsofthsm2.so", "sign", "--token", "dimo", "--label", "clitest", "--hash", h.Hex(), "--pin", "1234")
-		o, err := cmd.Output()
+		o, err := cmd.CombinedOutput()
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		fmt.Printf("Command: %s\n", cmd.String())
+		fmt.Printf("Output: %s\n", o)
 		m := reg.FindSubmatch(o)
-
 		sig := common.FromHex(string(m[1]))
 		fmt.Printf("Signature: %s\n", hexutil.Encode(sig))
 
