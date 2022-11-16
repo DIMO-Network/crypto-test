@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"os/exec"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -27,7 +26,7 @@ func main() {
 
 		fmt.Printf("Hash: %s\n", h)
 
-		cmd := exec.Command("autopi", "crypto.sign_string", strings.TrimPrefix(h.Hex(), "0x"))
+		cmd := exec.Command("sudo", "/home/pi/edge-identity/edge-identity", "sign", "--token", "dimo", "--label", "clitest", "--hash", h.Hex(), "--pin", "1234")
 		o, err := cmd.Output()
 		if err != nil {
 			log.Fatal(err)
