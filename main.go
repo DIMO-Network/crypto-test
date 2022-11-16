@@ -26,7 +26,7 @@ func main() {
 
 		fmt.Printf("Hash: %s\n", h)
 
-		cmd := exec.Command("sudo", "/home/pi/edge-identity/edge-identity", "sign", "--token", "dimo", "--label", "clitest", "--hash", h.Hex(), "--pin", "1234")
+		cmd := exec.Command("sudo", "/home/pi/edge-identity/edge-identity", "--lib", "/usr/lib/softhsm/libsofthsm2.so", "sign", "--token", "dimo", "--label", "clitest", "--hash", h.Hex(), "--pin", "1234")
 		o, err := cmd.Output()
 		if err != nil {
 			log.Fatal(err)
